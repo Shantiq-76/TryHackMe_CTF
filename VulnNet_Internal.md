@@ -25,22 +25,22 @@ Service Info: Host: VULNNET-INTERNAL; OS: Linux; CPE: cpe:/o:linux:linux_kernel 
 We have much of open ports..
 - ssh
 - rpcbind \
-  --> 
+  --> handles the assignment of RPC requests (Remote Procedure Calls) to network services
 - 2x netbios-ssn \
-  --> 
+  --> samba
 - rsync \
-  --> 
+  --> synchonisation of data
 - nfs-acl \
-  --> 
+  --> Control of access rights
 - redis \
-  --> 
+  --> noSQL DB
 - zeus-admin \
-  --> 
+  --> http
 - 2x mountd \
-  --> 
-- nlockmgr
+  --> Remote procedure call (RPC) that answers a client request to mount a file system.
+- nlockmgr \
+  --> NFS
 
-
-
-
-10.10.245.106
+Hcg3HP67@TW@Bc72v
+"B65Hx562F@ggAZ@F"
+10.10.168.176
