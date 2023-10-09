@@ -16,7 +16,7 @@ Here we find the user "john" and the standard password "password"
 ## gobuster scan
 
 !!on port 80 is nothing!! \
-gobuster dir -u http://<IP>:62337 -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt 
+gobuster dir -u http://IP:62337 -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt 
 
 /themes               (Status: 301) [Size: 324] [--> http://10.10.102.130:62337/themes/] \
 /data                 (Status: 301) [Size: 322] [--> http://10.10.102.130:62337/data/] \
